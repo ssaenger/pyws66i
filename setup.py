@@ -3,20 +3,20 @@
 import os
 import sys
 
-VERSION = '0.3'
+VERSION = "0.1"
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
+if sys.argv[-1] == "publish":
+    os.system("python setup.py sdist upload")
     sys.exit()
 
 license = """
 MIT License
-Copyright (c) 2017 Egor Tsinko
+Copyright (c) 2021 Shawn Saenger
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -34,17 +34,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-setup(name='pymonoprice',
-      version=VERSION,
-      description='Python API for talking to Monoprice 6-zone amplifier',
-      url='https://github.com/etsinko/pymonoprice',
-      download_url='https://github.com/etsinko/pymonoprice/archive/{}.tar.gz'.format(VERSION),
-      author='Egor Tsinko',
-      author_email='etsinko@gmail.com',
-      license='MIT',
-      install_requires=['pyserial>=3.4','pyserial-asyncio>=0.4'],
-      packages=['pymonoprice'],
-      classifiers=['Development Status :: 4 - Beta',
-                   'Programming Language :: Python :: 3.4',
-                   'Programming Language :: Python :: 3.5'],
-      zip_safe=True)
+setup(
+    name="pyws66i",
+    version=VERSION,
+    description="Python API for talking to Soundavo's WS66i 6-zone amplifier",
+    url="https://github.com/ssaenger/pyws66i",
+    download_url="https://github.com/ssaenger/pyws66i/archive/{}.tar.gz".format(VERSION),
+    author="Shawn Saenger",
+    author_email="shawnsaenger@gmail.com",
+    license="MIT",
+    packages=["pyws66i"],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        "Programming Language :: Python :: 3.9",
+    ],
+    zip_safe=True,
+)

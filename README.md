@@ -1,19 +1,29 @@
 ## Status
-[![Build Status](https://travis-ci.org/etsinko/pymonoprice.svg?branch=master)](https://travis-ci.org/etsinko/pymonoprice)[![Coverage Status](https://coveralls.io/repos/github/etsinko/pymonoprice/badge.svg)](https://coveralls.io/github/etsinko/pymonoprice)
+[![Build Status](https://app.travis-ci.com/ssaenger/ws66i.svg?branch=master)](https://app.travis-ci.com/ssaenger/ws66i)[![Coverage Status](https://coveralls.io/repos/github/ssaenger/ws66i/badge.svg?branch=master)](https://coveralls.io/github/ssaenger/ws66i?branch=master)
 
-# pymonoprice
-Python3 interface implementation for Monoprice 6 zone amplifier
+# pyws66i
+Python3 interface implementation for [Soundavo WS66i amplifier](https://www.soundavo.com/products/ws-66i).
 
 ## Notes
-This is for use with [Home-Assistant](http://home-assistant.io)
+This is a 6-zone amplifier that is a direct upgrade from ws66i 6-zone amplifier. This is a fork off of [pyws66i](https://github.com/etsinko/pyws66i) that replaces the serial protocol for telnet.
+
+It is intended to be used with [Home-Assistant](http://home-assistant.io).
 
 ## Usage
 ```python
-from pymonoprice import get_monoprice
+from pyws66i import get_ws66i
 
-monoprice = get_monoprice('/dev/ttyUSB0')
-# Valid zones are 11-16 for main monoprice amplifier
-zone_status = monoprice.zone_status(11)
+# Get a connection using the IP address of the WS66i amplifier
+ws66i = get_ws66i('192.168.1.123')
+
+# Open a connection
+try:
+    ws66i.open()
+except ConnectionError:
+    # Handle exception
+
+# Valid zones are 11-16 for main WS66i amplifier
+zone_status = ws66i.zone_status(11)
 
 # Print zone status
 print('Zone Number = {}'.format(zone_status.zone))
@@ -29,45 +39,29 @@ print('Source = {}'.format(zone_status.source))
 print('Keypad is {}'.format('connected' if zone_status.keypad else 'disconnected'))
 
 # Turn off zone #11
-monoprice.set_power(11, False)
+ws66i.set_power(11, False)
 
 # Mute zone #12
-monoprice.set_mute(12, True)
+ws66i.set_mute(12, True)
 
 # Set volume for zone #13
-monoprice.set_volume(13, 15)
+ws66i.set_volume(13, 15)
 
-# Set source 1 for zone #14 
-monoprice.set_source(14, 1)
+# Set source 1 for zone #14
+ws66i.set_source(14, 1)
 
 # Set treble for zone #15
-monoprice.set_treble(15, 10)
+ws66i.set_treble(15, 10)
 
 # Set bass for zone #16
-monoprice.set_bass(16, 7)
+ws66i.set_bass(16, 7)
 
 # Set balance for zone #11
-monoprice.set_balance(11, 3)
+ws66i.set_balance(11, 3)
 
 # Restore zone #11 to it's original state
-monoprice.restore_zone(zone_status)
-```
+ws66i.restore_zone(zone_status)
 
-## Usage with asyncio
-
-With `asyncio` flavor all methods of Monoprice object are coroutines.
-
-```python
-import asyncio
-from pymonoprice import get_async_monoprice
-
-async def main(loop):
-    monoprice = await get_async_monoprice('/dev/ttyUSB0', loop)
-    zone_status = await monoprice.zone_status(11)
-    if zone_status.power:
-        await monoprice.set_power(zone_status.zone, False)
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main(loop))
-
+# Done. Close the connection
+ws66i.close()
 ```

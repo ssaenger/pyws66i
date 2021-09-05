@@ -1,5 +1,5 @@
 [run]
-source = pymonoprice
+source = pyws66i
 
 [report]
 # Regexes for lines to exclude from consideration
