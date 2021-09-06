@@ -3,7 +3,7 @@
 import os
 import sys
 
-VERSION = "0.1"
+VERSION = "v0.1"
 
 try:
     from setuptools import setup
@@ -34,10 +34,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name="pyws66i",
     version=VERSION,
-    description="Python API for talking to Soundavo's WS66i 6-zone amplifier",
+    description="Python API for talking to Soundavo's WS66i 6-zone amplifier using the telnet protocol",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/ssaenger/pyws66i",
     download_url="https://github.com/ssaenger/pyws66i/archive/{}.tar.gz".format(VERSION),
     author="Shawn Saenger",
@@ -50,6 +55,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         "Programming Language :: Python :: 3.9",
+        "License :: OSI Approved :: MIT License",
     ],
     zip_safe=True,
 )
