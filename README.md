@@ -1,5 +1,5 @@
 ## Status
-[![Build Status](https://app.travis-ci.com/ssaenger/ws66i.svg?branch=master)](https://app.travis-ci.com/ssaenger/ws66i)[![Coverage Status](https://coveralls.io/repos/github/ssaenger/pyws66i/badge.svg?branch=master)](https://coveralls.io/github/ssaenger/pyws66i?branch=master)
+[![Build Status](https://app.travis-ci.com/ssaenger/pyws66i.svg?branch=master)](https://app.travis-ci.com/ssaenger/pyws66i)[![Coverage Status](https://coveralls.io/repos/github/ssaenger/pyws66i/badge.svg?branch=master)](https://coveralls.io/github/ssaenger/pyws66i?branch=master)
 
 # pyws66i
 Python3 interface implementation for [Soundavo WS66i amplifier](https://www.soundavo.com/products/ws-66i).
