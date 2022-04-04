@@ -5,7 +5,7 @@
 Python3 interface implementation for [Soundavo WS66i amplifier](https://www.soundavo.com/products/ws-66i).
 
 ## Notes
-This is a 6-zone amplifier that is a direct upgrade from ws66i 6-zone amplifier. This is a fork off of [pyws66i](https://github.com/etsinko/pyws66i) that replaces the serial protocol for telnet.
+This is a 6-zone amplifier that is a direct upgrade from ws66i 6-zone amplifier. This is a fork off of [pymonoprice](https://github.com/etsinko/pymonoprice) that replaces the serial protocol for telnet.
 
 It is intended to be used with [Home-Assistant](http://home-assistant.io).
 
@@ -22,7 +22,7 @@ try:
 except ConnectionError:
     # Handle exception
 
-# Valid zones are 11-16 for main WS66i amplifier
+# Valid zones are 11-16 for the main WS66i amplifier
 zone_status = ws66i.zone_status(11)
 
 # Print zone status
