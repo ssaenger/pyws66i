@@ -63,8 +63,20 @@ class ZoneStatus(object):
 
 class WS66i(object):
     """
-    Monoprice amplifier interface
+    WS66i amplifier interface
     """
+
+    def open(self):
+        """
+        Open a connection to the Telnet server
+        """
+        raise NotImplementedError
+
+    def close(self):
+        """
+        Close the connection to the Telnet server
+        """
+        raise NotImplementedError
 
     def zone_status(self, zone: int):
         """
@@ -212,6 +224,7 @@ def get_ws66i(host_name: str, host_port=8080):
                 _LOGGER.error('Failed to connect to host "%s"', host_name)
                 raise ConnectionError from err
 
+        @synchronized
         def close(self):
             if self._telnet is not None:
                 self._telnet.close()
