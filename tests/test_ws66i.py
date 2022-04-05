@@ -20,15 +20,18 @@ class TestWs66i(TestCase):
         self.ws66i.open()
         self.telnet_instance.open.assert_called_once()
 
+
     def tearDown(self):
         self.ws66i.close()
         self.patcher.stop()
+
 
     def test_close(self):
         # ----------- test close is called-----------
         # call
         self.ws66i.close()
         self.telnet_instance.close.assert_called_once()
+
 
     def test_bad_open(self):
         # ----------- test expect raises TimeoutError -----------
@@ -79,7 +82,11 @@ class TestWs66i(TestCase):
         self.assertEqual(4, status.source)
         self.assertTrue(status.keypad)
 
+
         # ----------- test expect raises EOFError -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
+
         # setup
         zone = 11
         expected_write = f'?{zone}\r'.encode()
@@ -90,54 +97,141 @@ class TestWs66i(TestCase):
         status = self.ws66i.zone_status(zone)
 
         # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.write.assert_called()
         self.telnet_instance.expect.assert_called_with([expected_pattern_coded], timeout=TIMEOUT)
+        self.telnet_instance.close.assert_called_once()
+        self.assertIsNone(status)
+
+        # ----------- test fails open -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
+
+        # call
+        self.telnet_instance.get_socket.return_value = None
+        self.telnet_instance.open.side_effect = TimeoutError()
+        status = self.ws66i.zone_status(zone)
+
+        # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_not_called()
+        self.telnet_instance.expect.assert_not_called()
+        self.telnet_instance.close.assert_not_called()
         self.assertIsNone(status)
 
         # ----------- test expect raises TimeoutError -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
 
         # call
+        self.telnet_instance.open.side_effect = None
+        self.telnet_instance.get_socket.return_value = None
         self.telnet_instance.expect.side_effect = TimeoutError()
         status = self.ws66i.zone_status(zone)
 
         # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_called_once()
+        self.telnet_instance.expect.assert_called_once()
+        self.telnet_instance.close.assert_called_once()
         self.assertIsNone(status)
 
         # ----------- test expect raises socket.timeout -----------
-        # setup
+        # Clear Mock
+        self.telnet_instance.reset_mock()
 
         # call
+        self.telnet_instance.get_socket.return_value = None
         self.telnet_instance.expect.side_effect = socket.timeout()
         status = self.ws66i.zone_status(zone)
 
         # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_called_once()
+        self.telnet_instance.expect.assert_called_once()
+        self.telnet_instance.close.assert_called_once()
         self.assertIsNone(status)
 
         # ----------- test expect raises UnboundLocalError -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
 
         # call
-        self.telnet_instance.write.side_effect = UnboundLocalError()
+        self.telnet_instance.get_socket.return_value = None
+        self.telnet_instance.expect.side_effect = UnboundLocalError()
         status = self.ws66i.zone_status(zone)
 
         # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_called_once()
+        self.telnet_instance.expect.assert_called_once()
         self.assertIsNone(status)
 
         # ----------- test expect raises BrokenPipeError -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
+
         # call
+        self.telnet_instance.get_socket.return_value = None
         self.telnet_instance.expect.side_effect = BrokenPipeError()
         status = self.ws66i.zone_status(zone)
 
         # check
+        self.telnet_instance.get_socket.assert_called()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_called_once()
+        self.telnet_instance.expect.assert_called_once()
         self.assertIsNone(status)
 
-        # ----------- test socket closed -----------
+        # ----------- test connection re-established, success -----------
         # call
-        prev_write_count = self.telnet_instance.write.call_count
-        self.telnet_instance.get_socket.return_value = None
+        # This is a way to check if a method was called or not...
+        self.telnet_instance.reset_mock()
+
+        # setup
+        zone = 11
+        expected_write = f'?{zone}\r'.encode()
+        expected_string_coded = "1100010000131112100401".encode()
+        expected_pattern_coded = f"({zone})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)".encode()
+
+        # call
+        self.telnet_instance.expect.side_effect = None
+        self.telnet_instance.expect.return_value = [None, re.search(expected_pattern_coded, expected_string_coded), None]
         status = self.ws66i.zone_status(zone)
 
         # check
-        self.assertIsNone(status)
+        self.telnet_instance.get_socket.assert_called_once()
+        self.telnet_instance.open.assert_called_once()
+        self.telnet_instance.write.assert_called_once()
+        self.telnet_instance.expect.assert_called_once()
+        self.telnet_instance.close.assert_not_called()
+
+        # check
+        self.assertIsNotNone(status)
+
+        # ----------- test zone_status with closed connection -----------
+        # Clear Mock
+        self.telnet_instance.reset_mock()
+
+        # setup
+        # A way to check that "write" is not called
+        prev_write_count = self.telnet_instance.write.call_count
+
+        # call
+        self.ws66i.close()
+        status = self.ws66i.zone_status(zone)
+
+        # check
+        self.telnet_instance.close.assert_called_once()
+        self.telnet_instance.get_socket.assert_not_called()
+        self.telnet_instance.open.assert_not_called()
         self.assertEqual(prev_write_count, self.telnet_instance.write.call_count)
+        self.telnet_instance.expect.assert_not_called()
+        self.assertIsNone(status)
 
 
     def test_set_power(self):

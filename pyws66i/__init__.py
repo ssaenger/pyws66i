@@ -68,13 +68,14 @@ class WS66i(object):
 
     def open(self):
         """
-        Open a connection to the Telnet server
+        Open a connection to the Telnet server. Must be the first call.
         """
         raise NotImplementedError
 
     def close(self):
         """
-        Close the connection to the Telnet server
+        Close the connection to the Telnet server. Open() will need to be
+        called again to communicate with the server.
         """
         raise NotImplementedError
 
@@ -82,7 +83,10 @@ class WS66i(object):
         """
         Get the structure representing the status of the zone
         :param zone: zone 11..16, 21..26, 31..36
-        :return: status of the zone or None
+        :return: status of the zone or None. If None is returned
+        then an error was occured. This is most likely due to the
+        amp being turned off. It will attempt to re-establish a
+        connection if a connection was previously present.
         """
         raise NotImplementedError
 
@@ -212,6 +216,7 @@ def get_ws66i(host_name: str, host_port=8080):
         def __init__(self, host_name: str, host_port: int):
             self._host_name = host_name
             self._host_port = host_port
+            self._connected = False
             self._telnet = Telnet()
 
         def __del__(self):
@@ -220,18 +225,20 @@ def get_ws66i(host_name: str, host_port=8080):
         def open(self):
             try:
                 self._telnet.open(self._host_name, self._host_port, TIMEOUT)
+                self._connected = True
             except (TimeoutError, OSError, socket.timeout, socket.gaierror) as err:
                 _LOGGER.error('Failed to connect to host "%s"', host_name)
                 raise ConnectionError from err
 
         @synchronized
         def close(self):
-            if self._telnet is not None:
-                self._telnet.close()
+            self._telnet.close()
+            self._connected = False
 
         def _process_request(self, request: bytes, expect_zone=None):
             """
             :param request: request that is sent to the WS66i
+            :param exepct_zone: The zone to fetch data from
             :return: Match object or None
             """
             _LOGGER.debug('Sending "%s"', request)
@@ -257,9 +264,27 @@ def get_ws66i(host_name: str, host_port=8080):
         @synchronized
         def zone_status(self, zone: int):
             # Check if socket is open before reading zone status
-            if not self._telnet.get_socket():
+            # Did the caller called open first?
+            if not self._connected:
+                _LOGGER.debug('Connection needed first')
                 return None
-            return ZoneStatus.from_string(self._process_request(_format_zone_status_request(zone), zone))
+
+            if not self._telnet.get_socket():
+                # The connection should be established, but an error was
+                # encountered (most likely amp was turned off)
+                # Attempt to re-establish the connection.
+                try:
+                    self.open()
+                except ConnectionError:
+                    return None
+
+            zone_status = ZoneStatus.from_string(self._process_request(_format_zone_status_request(zone), zone))
+            if zone_status is None:
+                # Amp is most likely turned off. Close the connection.
+                # Future calls to zone_status will try to reconnect.
+                self._telnet.close()
+
+            return zone_status
 
         @synchronized
         def set_power(self, zone: int, power: bool):

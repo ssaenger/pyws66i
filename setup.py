@@ -3,7 +3,7 @@
 import os
 import sys
 
-VERSION = "v0.1"
+VERSION = "v1.0"
 
 try:
     from setuptools import setup
@@ -16,7 +16,7 @@ if sys.argv[-1] == "publish":
 
 license = """
 MIT License
-Copyright (c) 2021 Shawn Saenger
+Copyright (c) 2022 Shawn Saenger
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -50,9 +50,7 @@ setup(
     license="MIT",
     packages=["pyws66i"],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        "Development Status :: 5 - Production/Stable",
         'Programming Language :: Python :: 3.8',
         "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: MIT License",
