@@ -227,7 +227,6 @@ def get_ws66i(host_name: str, host_port=8080):
                 self._telnet.open(self._host_name, self._host_port, TIMEOUT)
                 self._connected = True
             except (TimeoutError, OSError, socket.timeout, socket.gaierror) as err:
-                _LOGGER.error('Failed to connect to host "%s"', host_name)
                 raise ConnectionError from err
 
         @synchronized
