@@ -246,7 +246,7 @@ def get_ws66i(host_name: str, host_port=8080):
                 if expect_zone is not None:
                     # Exepct a regex string to prevent unsynchronized behavior when
                     # multiple clients communicate simultaneously with the WS66i
-                    expect_str = f"({expect_zone})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)"
+                    expect_str = fr"({expect_zone})(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)"
                     resp = self._telnet.expect([expect_str.encode()], timeout=TIMEOUT)
                     _LOGGER.debug('Received "%s"', str(resp[1]))
                     return resp[1]
